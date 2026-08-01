@@ -4,32 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Core\Telegram\TelegramService;
 use Illuminate\Http\Request;
+use App\Core\Bot\BotService;
 
 class TelegramWebhookController extends Controller
 {
-    public function __invoke(
+public function __invoke(
     Request $request,
     string $secret,
-    TelegramService $telegram
+    BotService $bot
 ) {
+
     if ($secret !== config('services.telegram.secret')) {
         abort(403);
     }
 
-    $chatId = data_get($request->all(), 'message.chat.id');
-    $text = data_get($request->all(), 'message.text');
-
-    if ($chatId && $text) {
-        $telegram->typing($chatId);
-
-        $telegram->sendMessage(
-            $chatId,
-            "Test ishladi ✅\n\n$text"
-        );
-    }
+    $bot->handle($request->all());
 
     return response()->json([
-        'ok' => true,
+        'ok' => true
     ]);
 }
 }
