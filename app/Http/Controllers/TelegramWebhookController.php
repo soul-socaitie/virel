@@ -12,7 +12,7 @@ public function __invoke(
     Request $request,
     string $secret,
     BotService $bot
-) {
+    ) {
 
     if ($secret !== config('services.telegram.secret')) {
         abort(403);

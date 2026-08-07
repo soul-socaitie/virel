@@ -4,28 +4,45 @@ namespace App\Core\Bot;
 
 use App\Core\Parser\UpdateParser;
 use App\Core\Telegram\TelegramService;
+use App\Core\User\UserService;
+use App\Core\AI\AIService;
+
 
 class BotService
 {
     public function __construct(
+        protected AIService $ai,
         protected UpdateParser $parser,
+        protected UserService $users,
         protected TelegramService $telegram,
     ) {
     }
 
     public function handle(array $update): void
-    {
-        $update = $this->parser->parse($update);
+{
+    $update = $this->parser->parse($update);
 
-        if ($update->chatId === null) {
-            return;
-        }
+    $this->users->resolve($update);
 
-        $this->telegram->typing($update->chatId);
+    if ($update->chatId === null) {
+        return;
+    }
+
+    $this->telegram->typing($update->chatId);
+    $response = $this->ai->chat(
+        new \App\Core\AI\DTO\AIRequest(
+            messages: [
+                new \App\Core\AI\DTO\AIMessage(
+                    role: 'user',
+                    content: $update->text ?? ''
+                    )
+                ]
+            )
+        );
 
         $this->telegram->sendMessage(
-            $update->chatId,
-            "🤖 Virel AI ishga tushdi!\n\nSiz yozdingiz:\n{$update->text}"
+         $update->chatId,
+         $response->reply
         );
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Core\AI\Contracts\AIProvider;
+use App\Core\AI\Providers\OpenRouterProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+    $this->app->singleton(
+        AIProvider::class,
+        OpenRouterProvider::class
+        );
     }
 
     /**
